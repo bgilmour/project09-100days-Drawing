@@ -8,76 +8,131 @@
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        EmptyView()
+    }
+}
+
+struct BackgroundView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Hello, world!")
+                .frame(width: 200, height: 150)
+                .background(Color.red)
+
+            Text("Hello, world!")
+                .frame(width: 200, height: 150)
+                .border(Color.red, width: 20)
+
+            Text("Hello, world!")
+                .fontWeight(.bold)
+                .frame(width: 200, height: 150)
+                .foregroundColor(.white)
+                .background(Image("barcelona-casa-mila").resizable())
+        }
+    }
+}
+
+struct ImagePaintView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Hello, world!")
+                .frame(width: 300, height: 200)
+                .border(ImagePaint(image: Image("barcelona-casa-mila"), scale: 0.2), width: 20)
+
+            Text("Hello, world!")
+                .frame(width: 300, height: 200)
+                .border(ImagePaint(image: Image("barcelona-casa-mila"), sourceRect: CGRect(x: 0, y: 0.25, width: 1, height: 0.5), scale: 0.1), width: 20)
+
+            Capsule()
+                .strokeBorder(ImagePaint(image: Image("barcelona-casa-mila"), scale: 0.05), lineWidth: 30)
+                .frame(width: 300, height: 200)
+        }
+    }
+}
+
+struct Triangle1View: View {
+    var body: some View {
+        Triangle()
+            .fill(Color.red)
+            .frame(width: 300, height: 300)
+    }
+}
+
+struct Triangle2View: View {
+    var body: some View {
+        Triangle()
+            .stroke(Color.red, style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
+            .frame(width: 300, height: 300)
+    }
+}
+
+struct Arc1View: View {
+    var body: some View {
+        Arc(startAngle: .degrees(0), endAngle: .degrees(110), clockwise: true)
+            .stroke(Color.blue, lineWidth: 10)
+            .frame(width: 300, height: 300)
+    }
+}
+
+struct Arc2View: View {
+    var body: some View {
+        Arc(startAngle: .degrees(-90), endAngle: .degrees(90), clockwise: true)
+            .strokeBorder(Color.blue, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+    }
+}
+
+struct Circle1View: View {
+    var body: some View {
+        Circle()
+            .stroke(Color.blue, lineWidth: 10)
+    }
+}
+
+struct Circle2View: View {
+    var body: some View {
+        Circle()
+            .strokeBorder(Color.blue, lineWidth: 10)
+    }
+}
+
+struct Flower1View: View {
     @State private var petalOffset = -20.0
     @State private var petalWidth = 100.0
 
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 20) {
-//                Text("Hello, world!")
-//                    .frame(width: 200, height: 150)
-//                    .background(Color.red)
+        VStack {
+            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
+                .stroke(Color.red, lineWidth: 1)
 
-//                Text("Hello, world!")
-//                    .frame(width: 200, height: 150)
-//                    .border(Color.red, width: 20)
+            Text("Offset: \(petalOffset, specifier: "%.2f")")
+            Slider(value: $petalOffset, in: -40 ... 40)
+                .padding([.horizontal, .bottom])
 
-//                Text("Hello, world!")
-//                    .fontWeight(.bold)
-//                    .frame(width: 200, height: 150)
-//                    .foregroundColor(.white)
-//                    .background(Image("barcelona-casa-mila").resizable())
-
-// this does not work
-//                Text("Hello, world!")
-//                    .frame(width: 200, height: 150)
-//                    .border(Image("barcelona-casa-mila").resizable(), width: 20)
-
-                Text("Hello, world!")
-                    .frame(width: 300, height: 200)
-                    .border(ImagePaint(image: Image("barcelona-casa-mila"), scale: 0.2), width: 20)
-
-                Text("Hello, world!")
-                    .frame(width: 300, height: 200)
-                    .border(ImagePaint(image: Image("barcelona-casa-mila"), sourceRect: CGRect(x: 0, y: 0.25, width: 1, height: 0.5), scale: 0.1), width: 20)
-
-                Capsule()
-                    .strokeBorder(ImagePaint(image: Image("barcelona-casa-mila"), scale: 0.05), lineWidth: 30)
-                    .frame(width: 300, height: 200)
-            }
+            Text("Width: \(petalWidth, specifier: "%.2f")")
+            Slider(value: $petalWidth, in: 0 ... 100)
+                .padding(.horizontal)
         }
-        .padding()
+    }
+}
 
-//        VStack {
-//            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
-//                .stroke(Color.red, lineWidth: 1)
-//                .fill(Color.red)
-//                .fill(Color.red, style: FillStyle(eoFill: true))
+struct Flower2View: View {
+    @State private var petalOffset = -20.0
+    @State private var petalWidth = 100.0
 
-//            Text("Offset")
-//            Slider(value: $petalOffset, in: -40 ... 40)
-//                .padding([.horizontal, .bottom])
+    var body: some View {
+        VStack {
+            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
+                .fill(Color.red, style: FillStyle(eoFill: true))
 
-//            Text("Width")
-//            Slider(value: $petalWidth, in: 0 ... 100)
-//                .padding(.horizontal)
-//        }
+            Text("Offset: \(petalOffset, specifier: "%.2f")")
+            Slider(value: $petalOffset, in: -40 ... 40)
+                .padding([.horizontal, .bottom])
 
-//        Arc(startAngle: .degrees(-90), endAngle: .degrees(90), clockwise: true)
-//            .strokeBorder(Color.blue, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-
-//        Circle()
-//            .stroke(Color.blue, lineWidth: 10)
-//            .strokeBorder(Color.blue, lineWidth: 10)
-
-//        Arc(startAngle: .degrees(0), endAngle: .degrees(110), clockwise: true)
-//            .stroke(Color.blue, lineWidth: 10)
-//            .frame(width: 300, height: 300)
-
-//        Triangle()
-//            .fill(Color.red)
-//            .stroke(Color.red, style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
-//            .frame(width: 300, height: 300)
+            Text("Width: \(petalWidth, specifier: "%.2f")")
+            Slider(value: $petalWidth, in: 0 ... 100)
+                .padding(.horizontal)
+        }
     }
 }
 

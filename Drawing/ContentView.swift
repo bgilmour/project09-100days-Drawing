@@ -12,20 +12,56 @@ struct ContentView: View {
     @State private var petalWidth = 100.0
 
     var body: some View {
-        VStack {
-            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
+        ScrollView(.vertical) {
+            VStack(spacing: 20) {
+//                Text("Hello, world!")
+//                    .frame(width: 200, height: 150)
+//                    .background(Color.red)
+
+//                Text("Hello, world!")
+//                    .frame(width: 200, height: 150)
+//                    .border(Color.red, width: 20)
+
+//                Text("Hello, world!")
+//                    .fontWeight(.bold)
+//                    .frame(width: 200, height: 150)
+//                    .foregroundColor(.white)
+//                    .background(Image("barcelona-casa-mila").resizable())
+
+// this does not work
+//                Text("Hello, world!")
+//                    .frame(width: 200, height: 150)
+//                    .border(Image("barcelona-casa-mila").resizable(), width: 20)
+
+                Text("Hello, world!")
+                    .frame(width: 300, height: 200)
+                    .border(ImagePaint(image: Image("barcelona-casa-mila"), scale: 0.2), width: 20)
+
+                Text("Hello, world!")
+                    .frame(width: 300, height: 200)
+                    .border(ImagePaint(image: Image("barcelona-casa-mila"), sourceRect: CGRect(x: 0, y: 0.25, width: 1, height: 0.5), scale: 0.1), width: 20)
+
+                Capsule()
+                    .strokeBorder(ImagePaint(image: Image("barcelona-casa-mila"), scale: 0.05), lineWidth: 30)
+                    .frame(width: 300, height: 200)
+            }
+        }
+        .padding()
+
+//        VStack {
+//            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
 //                .stroke(Color.red, lineWidth: 1)
 //                .fill(Color.red)
-                .fill(Color.red, style: FillStyle(eoFill: true))
+//                .fill(Color.red, style: FillStyle(eoFill: true))
 
-            Text("Offset")
-            Slider(value: $petalOffset, in: -40 ... 40)
-                .padding([.horizontal, .bottom])
+//            Text("Offset")
+//            Slider(value: $petalOffset, in: -40 ... 40)
+//                .padding([.horizontal, .bottom])
 
-            Text("Width")
-            Slider(value: $petalWidth, in: 0 ... 100)
-                .padding(.horizontal)
-        }
+//            Text("Width")
+//            Slider(value: $petalWidth, in: 0 ... 100)
+//                .padding(.horizontal)
+//        }
 
 //        Arc(startAngle: .degrees(-90), endAngle: .degrees(90), clockwise: true)
 //            .strokeBorder(Color.blue, style: StrokeStyle(lineWidth: 10, lineCap: .round))

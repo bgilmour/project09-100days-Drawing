@@ -9,7 +9,130 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ColorCycle2View()
+        SaturationBlurView()
+    }
+}
+
+struct SaturationBlurView: View {
+    @State private var amount: CGFloat = 0.0
+
+    var body: some View {
+        VStack {
+            Image("barcelona-casa-mila")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 400, height: 300)
+                .saturation(Double(amount))
+                .blur(radius: (1 - amount) * 10)
+
+            HStack {
+                Text("Effect: \(amount, specifier: "%.2f")")
+                    .padding(.trailing)
+                Slider(value: $amount)
+            }
+            .padding()
+        }
+    }
+}
+
+struct OverlappingCircleView: View {
+    @State private var amount: CGFloat = 0.5
+    @State private var selectedMode = 0
+    @State private var useDynamicColors = true
+
+    static let modes: [BlendMode] = [.screen, .difference, .exclusion]
+    static let modeNames: [String] = ["screen", "difference", "exclusion"]
+
+    var body: some View {
+        VStack {
+            Text("OverlappingCircleView")
+                .font(.title)
+                .foregroundColor(.white)
+                .padding()
+
+            ZStack {
+                Circle()
+                    .fill(useDynamicColors ? Color.red : Color(red: 1, green: 0, blue: 0))
+                    .frame(width: 250 * amount)
+                    .offset(x: -50, y: -80)
+                    .blendMode(Self.modes[selectedMode])
+
+                Circle()
+                    .fill(useDynamicColors ? Color.green : Color(red: 0, green: 1, blue: 0))
+                    .frame(width: 250 * amount)
+                    .offset(x: 50, y: -80)
+                    .blendMode(Self.modes[selectedMode])
+
+                Circle()
+                    .fill(useDynamicColors ? Color.blue : Color(red: 0, green: 0, blue: 1))
+                    .frame(width: 250 * amount)
+                    .blendMode(Self.modes[selectedMode])
+            }
+            .frame(width: 300, height: 300)
+
+            VStack(spacing: 20) {
+                Toggle("Use dynamic colors", isOn: $useDynamicColors)
+
+                HStack {
+                    Text("Size: \(amount, specifier: "%.2f")")
+                        .padding(.trailing)
+                    Slider(value: $amount, in: 0.25 ... 1.0)
+                }
+
+                Stepper("Mode: \(selectedMode) (\(Self.modeNames[selectedMode]))", value: $selectedMode, in: 0 ... Self.modes.count - 1)
+            }
+            .padding()
+            .background(Color(red: 0.95, green: 0.95, blue: 0.95))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black)
+        .edgesIgnoringSafeArea(.all)
+    }
+
+}
+
+struct BlendMode1View: View {
+    static let colors: [Color] = [.white, .red, .green, .yellow, .orange, .pink, .purple, .blue, .black]
+
+    @State private var selectedColor = 0
+
+    var body: some View {
+        VStack {
+            ZStack {
+                Image("barcelona-casa-mila").resizable().scaledToFill()
+
+                Rectangle()
+                    .fill(Self.colors[selectedColor])
+                    .blendMode(.multiply)
+
+            }
+            .frame(width: 400, height: 300)
+            .overlay(Rectangle().stroke(Color.black, lineWidth: 2))
+            .clipped()
+
+            Stepper("Color: \(selectedColor) (\(Self.colors[selectedColor].description))", value: $selectedColor, in: 0 ... Self.colors.count - 1)
+                .padding()
+        }
+    }
+}
+
+struct BlendMode2View: View {
+    static let colors: [Color] = [.white, .red, .green, .yellow, .orange, .pink, .purple, .blue]
+
+    @State private var selectedColor = 0
+
+    var body: some View {
+        VStack {
+            Image("barcelona-casa-mila")
+                .resizable()
+                .scaledToFill()
+                .colorMultiply(Self.colors[selectedColor])
+                .frame(width: 400, height: 300)
+                .clipped()
+
+            Stepper("Color: \(selectedColor) (\(Self.colors[selectedColor].description))", value: $selectedColor, in: 0 ... Self.colors.count - 1)
+                .padding()
+        }
     }
 }
 
@@ -19,7 +142,7 @@ struct ColorCycle1View: View {
     var body: some View {
         VStack {
             Spacer()
-            
+
             ColorCyclingCircle(amount: colorCycle)
                 .frame(width: 300, height: 300)
 

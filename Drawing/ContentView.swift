@@ -9,7 +9,32 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        SpirographView()
+        TabView {
+            BlendMode2View()
+                .tabItem {
+                    Label("Blend", systemImage: "arrow.triangle.merge")
+                }
+
+            OverlappingCircleView()
+                .tabItem {
+                    Label("Overlap", systemImage: "circlebadge.2")
+                }
+
+            ColorCycle2View()
+                .tabItem {
+                    Label("Cycle", systemImage: "arrow.triangle.2.circlepath")
+                }
+
+            Flower2View()
+                .tabItem {
+                    Label("Flower", systemImage: "leaf")
+                }
+
+            SpirographView()
+                .tabItem {
+                    Label("Spirograph", systemImage: "line.3.crossed.swirl.circle")
+                }
+        }
     }
 }
 
@@ -450,7 +475,7 @@ struct Flower1View: View {
 
             Text("Width: \(petalWidth, specifier: "%.2f")")
             Slider(value: $petalWidth, in: 0 ... 100)
-                .padding(.horizontal)
+                .padding([.horizontal, .bottom])
         }
     }
 }
@@ -470,7 +495,7 @@ struct Flower2View: View {
 
             Text("Width: \(petalWidth, specifier: "%.2f")")
             Slider(value: $petalWidth, in: 0 ... 100)
-                .padding(.horizontal)
+                .padding([.horizontal, .bottom])
         }
     }
 }

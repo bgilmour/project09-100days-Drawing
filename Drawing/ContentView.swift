@@ -74,7 +74,7 @@ struct SpirographView: View {
 
                 Text("Color: \(hue, specifier: "%.2f")")
                 Slider(value: $hue)
-                    .padding(.horizontal)
+                    .padding([.horizontal, .bottom])
             }
         }
     }

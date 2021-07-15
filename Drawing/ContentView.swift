@@ -9,6 +9,135 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
+        AnimatedArrowsView()
+    }
+}
+
+struct AnimatedArrowsView: View {
+    @State private var shaftWidthRatio = 0.25
+    @State private var shaftLengthRatio = 0.7
+    @State private var tipWidthRatio = 0.5
+
+    var body: some View {
+        VStack {
+            SimpleArrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio)
+                .stroke(Color.black, lineWidth: 2)
+                .background(SimpleArrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio).fill(Color.blue))
+                .onTapGesture {
+                    withAnimation(.linear(duration: 1)) {
+                        shaftWidthRatio = Double.random(in: 0.1 ... tipWidthRatio)
+                        shaftLengthRatio = Double.random(in: 0.1 ... 0.8)
+                        tipWidthRatio = Double.random(in: shaftWidthRatio ... 1.0)
+                    }
+                }
+                .frame(width: 300, height: 200)
+                .animation(.linear)
+                .overlay(Rectangle().stroke(Color.red, lineWidth: 1))
+                .padding([.horizontal, .bottom])
+
+            Arrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio)
+                .stroke(Color.black, lineWidth: 2)
+                .background(Arrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio).fill(Color.purple))
+                .onTapGesture {
+                    withAnimation(.linear(duration: 1)) {
+                        shaftWidthRatio = Double.random(in: 0.1 ... tipWidthRatio)
+                        shaftLengthRatio = Double.random(in: 0.1 ... 0.8)
+                        tipWidthRatio = Double.random(in: shaftWidthRatio ... 1.0)
+                    }
+                }
+                .frame(width: 300, height: 200)
+                .animation(.linear)
+                .overlay(Rectangle().stroke(Color.red, lineWidth: 1))
+                .padding([.horizontal, .bottom])
+
+            Group {
+                Text("Shaft width ratio: \(shaftWidthRatio, specifier: "%.2f")")
+                Slider(value: $shaftWidthRatio, in: 0.1 ... tipWidthRatio)
+                    .padding([.horizontal, .bottom])
+
+                Text("Shaft length ratio: \(shaftLengthRatio, specifier: "%.2f")")
+                Slider(value: $shaftLengthRatio, in: 0.1 ... 0.8)
+                    .padding([.horizontal, .bottom])
+
+                Text("Tip width ratio: \(tipWidthRatio, specifier: "%.2f")")
+                Slider(value: $tipWidthRatio, in: shaftWidthRatio ... 1.0)
+                    .padding([.horizontal, .bottom])
+            }
+        }
+    }
+}
+
+struct Arrow: Shape {
+    var shaftWidthRatio = 0.25
+    var shaftLengthRatio = 0.7
+    var tipWidthRatio = 0.5
+
+    func path(in rect: CGRect) -> Path {
+        let shaftLength = rect.width * CGFloat(shaftLengthRatio)
+        let shaftWidth = rect.height * CGFloat(shaftWidthRatio)
+        let tipWidth = rect.height * CGFloat(tipWidthRatio)
+
+        var path = Path()
+
+        path.move(to: CGPoint(x: 0, y: rect.midY - shaftWidth / 2))
+        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY - shaftWidth / 2))
+        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY - tipWidth / 2))
+        path.addLine(to: CGPoint(x: rect.width, y: rect.height / 2))
+        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY + tipWidth / 2))
+        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY + shaftWidth / 2))
+        path.addLine(to: CGPoint(x: 0, y: rect.midY + shaftWidth / 2))
+        path.addLine(to: CGPoint(x: 0, y: rect.midY - shaftWidth / 2))
+
+        return path
+    }
+
+    var animatableData: AnimatablePair<Double, AnimatablePair<Double, Double>> {
+        get {
+            AnimatablePair(shaftWidthRatio, AnimatablePair(shaftLengthRatio, tipWidthRatio))
+        }
+
+        set {
+            shaftWidthRatio = newValue.first
+            shaftLengthRatio = newValue.second.first
+            tipWidthRatio = newValue.second.second
+        }
+    }
+}
+
+struct SimpleArrow: Shape {
+    var shaftWidthRatio = 0.25
+    var shaftLengthRatio = 0.7
+    var tipWidthRatio = 0.5
+
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        path.addRect(CGRect(x: 0, y: rect.midY - rect.height * CGFloat(shaftWidthRatio) / 2, width: rect.width * CGFloat(shaftLengthRatio), height: rect.height * CGFloat(shaftWidthRatio)))
+
+        path.move(to: CGPoint(x: rect.width * CGFloat(shaftLengthRatio), y: rect.midY - rect.height * CGFloat(tipWidthRatio) / 2))
+        path.addLine(to: CGPoint(x: rect.width, y: rect.height / 2))
+        path.addLine(to: CGPoint(x: rect.width * CGFloat(shaftLengthRatio), y: rect.midY + rect.height * CGFloat(tipWidthRatio) / 2))
+        path.addLine(to:CGPoint(x: rect.width * CGFloat(shaftLengthRatio), y: rect.midY - rect.height * CGFloat(tipWidthRatio) / 2))
+
+        return path
+    }
+
+    var animatableData: AnimatablePair<Double, AnimatablePair<Double, Double>> {
+        get {
+            AnimatablePair(shaftWidthRatio, AnimatablePair(shaftLengthRatio, tipWidthRatio))
+        }
+
+        set {
+            shaftWidthRatio = newValue.first
+            shaftLengthRatio = newValue.second.first
+            tipWidthRatio = newValue.second.second
+        }
+    }
+}
+
+struct DrawingTabView: View {
+    var body: some View {
         TabView {
             BlendMode2View()
                 .tabItem {
@@ -77,53 +206,6 @@ struct SpirographView: View {
                     .padding([.horizontal, .bottom])
             }
         }
-    }
-}
-
-struct Spirograph: Shape {
-    let innerRadius: Int
-    let outerRadius: Int
-    let distance: Int
-    let amount: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        let divisor = gcd(innerRadius, outerRadius)
-        let outerRadius = CGFloat(self.outerRadius)
-        let innerRadius = CGFloat(self.innerRadius)
-        let distance = CGFloat(self.distance)
-        let difference = innerRadius - outerRadius
-        let endPoint = ceil(2 * CGFloat.pi * outerRadius / CGFloat(divisor)) * amount
-
-        var path = Path()
-
-        for theta in stride(from: 0, to: endPoint, by: 0.01) {
-            var x = difference * cos(theta) + distance * cos(difference / outerRadius * theta)
-            var y = difference * sin(theta) - distance * sin(difference / outerRadius * theta)
-
-            x += rect.width / 2
-            y += rect.height / 2
-
-            if theta == 0 {
-                path.move(to: CGPoint(x: x, y: y))
-            } else {
-                path.addLine(to: CGPoint(x: x, y: y))
-            }
-        }
-
-        return path
-    }
-
-    func gcd(_ a: Int, _ b: Int) -> Int {
-        var a = a
-        var b = b
-
-        while b != 0 {
-            let temp = b
-            b = a % b
-            a = temp
-        }
-
-        return a
     }
 }
 
@@ -612,6 +694,53 @@ struct Checkerboard: Shape {
             rows = Int(newValue.first)
             columns = Int(newValue.second)
         }
+    }
+}
+
+struct Spirograph: Shape {
+    let innerRadius: Int
+    let outerRadius: Int
+    let distance: Int
+    let amount: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let divisor = gcd(innerRadius, outerRadius)
+        let outerRadius = CGFloat(self.outerRadius)
+        let innerRadius = CGFloat(self.innerRadius)
+        let distance = CGFloat(self.distance)
+        let difference = innerRadius - outerRadius
+        let endPoint = ceil(2 * CGFloat.pi * outerRadius / CGFloat(divisor)) * amount
+
+        var path = Path()
+
+        for theta in stride(from: 0, to: endPoint, by: 0.01) {
+            var x = difference * cos(theta) + distance * cos(difference / outerRadius * theta)
+            var y = difference * sin(theta) - distance * sin(difference / outerRadius * theta)
+
+            x += rect.width / 2
+            y += rect.height / 2
+
+            if theta == 0 {
+                path.move(to: CGPoint(x: x, y: y))
+            } else {
+                path.addLine(to: CGPoint(x: x, y: y))
+            }
+        }
+
+        return path
+    }
+
+    func gcd(_ a: Int, _ b: Int) -> Int {
+        var a = a
+        var b = b
+
+        while b != 0 {
+            let temp = b
+            b = a % b
+            a = temp
+        }
+
+        return a
     }
 }
 

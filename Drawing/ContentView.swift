@@ -9,14 +9,81 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        AnimatedArrowsView()
+        TabView {
+            ColorCycleRectangleView()
+                .tabItem {
+                    Label("Cycle", systemImage: "arrow.2.squarepath")
+                }
+
+            AnimatedArrowsView()
+                .tabItem {
+                    Label("Arrows", systemImage: "arrow.right.square")
+                }
+        }
+    }
+}
+
+struct ColorCycleRectangleView: View {
+    @State private var colorCycle = 0.0
+    @State private var gradientStart = 0.0
+
+    var body: some View {
+        VStack {
+            Spacer()
+
+            ColorCyclingRectangle(amount: colorCycle, gradientStart: gradientStart)
+                .frame(width: 300, height: 300)
+                .padding([.horizontal, .bottom])
+
+            Spacer()
+
+            Text("Hue: \(colorCycle, specifier: "%.2f")")
+            Slider(value: $colorCycle)
+                .padding([.horizontal, .bottom])
+
+            Text("Gradient start: \(gradientStart, specifier: "%.2f")")
+            Slider(value: $gradientStart)
+                .padding([.horizontal, .bottom])
+
+            Spacer()
+        }
+    }
+}
+
+struct ColorCyclingRectangle: View {
+    var amount = 0.0
+    var gradientStart = 0.0
+    var steps = 100
+
+    var body: some View {
+        ZStack {
+            ForEach(0 ..< steps) { value in
+                Rectangle()
+                    .inset(by: CGFloat(value))
+                    .strokeBorder(LinearGradient(gradient: Gradient(colors: [
+                        color(for: value, brightness: 1),
+                        color(for: value, brightness: 0.25)
+                    ]), startPoint: UnitPoint(x: 0.5, y: CGFloat(gradientStart)), endPoint: .bottom), lineWidth: 2)
+            }
+        }
+        .drawingGroup()
+    }
+
+    func color(for value: Int, brightness: Double) -> Color {
+        var targetHue = Double(value) / Double(steps) + amount
+
+        if targetHue > 1 {
+            targetHue -= 1
+        }
+
+        return Color(hue: targetHue, saturation: 1, brightness: brightness)
     }
 }
 
 struct AnimatedArrowsView: View {
-    @State private var shaftWidthRatio = 0.25
-    @State private var shaftLengthRatio = 0.7
-    @State private var tipWidthRatio = 0.5
+    @State private var shaftWidthRatio = 0.5
+    @State private var shaftLengthRatio = 0.65
+    @State private var tipWidthRatio = 1.0
 
     var body: some View {
         VStack {
@@ -36,8 +103,8 @@ struct AnimatedArrowsView: View {
                 .padding([.horizontal, .bottom])
 
             Arrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio)
-                .stroke(Color.black, lineWidth: 2)
-                .background(Arrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio).fill(Color.purple))
+                .strokeBorder(Color.black, style: StrokeStyle(lineWidth: 10, lineCap: .round, lineJoin: .round))
+                .background(Arrow(shaftWidthRatio: shaftWidthRatio, shaftLengthRatio: shaftLengthRatio, tipWidthRatio: tipWidthRatio).inset(by: 5).fill(Color.purple))
                 .onTapGesture {
                     withAnimation(.linear(duration: 1)) {
                         shaftWidthRatio = Double.random(in: 0.1 ... tipWidthRatio)
@@ -67,10 +134,12 @@ struct AnimatedArrowsView: View {
     }
 }
 
-struct Arrow: Shape {
-    var shaftWidthRatio = 0.25
-    var shaftLengthRatio = 0.7
-    var tipWidthRatio = 0.5
+struct Arrow: InsettableShape {
+    var shaftWidthRatio = 0.5
+    var shaftLengthRatio = 0.65
+    var tipWidthRatio = 1.0
+
+    var insetAmount: CGFloat = 0
 
     func path(in rect: CGRect) -> Path {
         let shaftLength = rect.width * CGFloat(shaftLengthRatio)
@@ -79,14 +148,14 @@ struct Arrow: Shape {
 
         var path = Path()
 
-        path.move(to: CGPoint(x: 0, y: rect.midY - shaftWidth / 2))
-        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY - shaftWidth / 2))
-        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY - tipWidth / 2))
-        path.addLine(to: CGPoint(x: rect.width, y: rect.height / 2))
-        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY + tipWidth / 2))
-        path.addLine(to: CGPoint(x: shaftLength, y: rect.midY + shaftWidth / 2))
-        path.addLine(to: CGPoint(x: 0, y: rect.midY + shaftWidth / 2))
-        path.addLine(to: CGPoint(x: 0, y: rect.midY - shaftWidth / 2))
+        path.move(to: CGPoint(x: insetAmount, y: rect.midY - shaftWidth / 2 + insetAmount))
+        path.addLine(to: CGPoint(x: shaftLength + insetAmount, y: rect.midY - shaftWidth / 2 + insetAmount))
+        path.addLine(to: CGPoint(x: shaftLength + insetAmount, y: rect.midY - tipWidth / 2 + insetAmount))
+        path.addLine(to: CGPoint(x: rect.width - insetAmount, y: rect.height / 2))
+        path.addLine(to: CGPoint(x: shaftLength + insetAmount, y: rect.midY + tipWidth / 2 - insetAmount))
+        path.addLine(to: CGPoint(x: shaftLength + insetAmount, y: rect.midY + shaftWidth / 2 - insetAmount))
+        path.addLine(to: CGPoint(x: insetAmount, y: rect.midY + shaftWidth / 2 - insetAmount))
+        path.addLine(to: CGPoint(x: insetAmount, y: rect.midY - shaftWidth / 2 + insetAmount))
 
         return path
     }
@@ -102,12 +171,18 @@ struct Arrow: Shape {
             tipWidthRatio = newValue.second.second
         }
     }
+
+    func inset(by amount: CGFloat) -> some InsettableShape {
+        var arrow = self
+        arrow.insetAmount += amount
+        return arrow
+    }
 }
 
 struct SimpleArrow: Shape {
-    var shaftWidthRatio = 0.25
-    var shaftLengthRatio = 0.7
-    var tipWidthRatio = 0.5
+    var shaftWidthRatio = 0.5
+    var shaftLengthRatio = 0.65
+    var tipWidthRatio = 1.0
 
 
     func path(in rect: CGRect) -> Path {
